@@ -1,0 +1,62 @@
+{
+  "environmentVariables": [
+    {
+      "name": "GOOGLE_SHEET_ID",
+      "value": "1V7RKKDE-RiVH_9mTIgbOTpPf9JsgQI0iY2yzRWq5-lc",
+      "description": "Google Sheets ID from the URL"
+    },
+    {
+      "name": "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+      "value": "learnif-sheets@learnif.iam.gserviceaccount.com",
+      "description": "Service account email for Google Sheets API"
+    },
+    {
+      "name": "GOOGLE_PRIVATE_KEY",
+      "value": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCb8cc5hyWJyxzC\njwupUlCT2bCXdmdiMuuzsdTRLnuPa0KdEexvSiPjypt3Fi+CFGIUB2IrL5hpb9U+\nBh5MJMqirBaUovIq7JgeirTlQDkl3Ec/H5xyLo9hkjN5ETdRvZh0Ki5/A8zYpRNR\nmUbAPaqxPabztQgp/UhgGW7h2EMzh+HLzRoY6heDEd3YNY7R9vaQQTP/bSTC7MmS\nZj2lMmzVCHYDAZ7/BVnirrTnZVIuY2uR9a7+mYpE5jJMsOB61i3ILDv9AmxI3E6/\n+0eqnmEsMzxu3Ci4V/UOlXOtYd9SAQCz9WlOU+oQ8zrcZGx7g2vuYjRrJhO7V4QS\nJkmSajfLAgMBAAECggEAL9jDE7ePoPOc42UYYt9KsdJ9CDvgBJUzFHNfpL7qUlrK\nmX7CWHMbB+1GPgekk/jFDvgk+rMjxFX3y4v9B8fSFI9QblKAkwL8uYI9dol5/0/S\n3F9KlQ4MGBfPiznpCz9s41d95KK5207q2oJ43ssM8EzGSMgmtRttdW7YQpskI073\nLk4UJugQYdseFDiJKigxGgVWV5ToPxBzbeBsZFhzMPHOdzpnQmp1rVRCiitAQGTm\nXffY1UKVooHZCaDNAtuCk1im7dA66GfSva4G+wV/isxXu+g+L00d4M1uNEXimkE+\nrWM6vw0i7CZflkMSdWuyiREmH8NMmkND0gBFKQcl4QKBgQDKO+eLWSMyF5+fzKEF\nwhYK68b3a0qf+PQFRmrp/7QmWNbrzQ1RQpVdbv243re6/VXULbPSuDc4h91mcIUp\n/6Al/93FY/DxdEOzXFuLwKxGOXRwoIkAMCCowKi2aEZxxao3Bos2Z/GtAiq0kWZ5\nuKCE/LKtkRPv0SP5mTG1T6rfxwKBgQDFZ2UyAI0A5Q/BFW0nGVVYL7nwbx819Riq\nPpcg3Uvdj9Z+VQHrfcceHbSNCZJqsAue/m4UICWUb6+U3iIn/1rUuB9HGrvqp1cG\nxVbaGVnOjpPIfh5Fg6RDNx6Bdlm5OJG/QVPkWDPfIrq6LWvv5zgmsUUAgARv0vsw\n+ytil6Kv3QKBgQCM5DMqF823ZlHk6JD+C/uDXEPft7XjwXNwAWEW6Pg/BwGkgdTX\nWgXpdBv7od5qvXgAPF7dXU3LaoxKg/WiDt8p2hpNHJWOAivwV1XIBVGAEyMWHCGW\nKfF239IqUndRaB5v+3UdUElE+Q97gRjdkEz0mYB5/2reVtwzVhEVeg1XnQKBgQC9\nE0/GGOj1lnEEi7VE4erw0KXUOVs3n07Eoba3b78etIrJ7josiQiTO/iXrjdjoMNA\nwopFFJVqG5+dgzZMATXK0aCDxoN/OlEM1y9dLzLpuX6rZsEv6+sFxmGdtvIxipFv\nEu97o0/rxaP8d00PN/R8ewaQeA3H3dljDPB9OqhEsQKBgEexOTxGelzgokPegZiU\ndLk8eV46N40+DgMGOti84bUKQjDj7mSkpMw5wQVTJKHP9xNajk05+b2GhpwSQju7\n2BQogP+o40jDGDfKalkc5jg2lOkmR23R4F5Bq2YUq94OZLT1vQUJi3P6y1+bTLmi\nyQE9yB3JsgE5fmExv9R8cDBi\n-----END PRIVATE KEY-----\n",
+      "description": "Full private key from service account JSON (include BEGIN/END lines)"
+    },
+    {
+      "name": "WEBSITE_URL",
+      "value": "https://learnif.16xstudios.space",
+      "description": "Your production website URL"
+    },
+    {
+      "name": "SMTP_HOST",
+      "value": "mail.privateemail.com",
+      "description": "SMTP server hostname"
+    },
+    {
+      "name": "SMTP_PORT",
+      "value": "465",
+      "description": "SMTP server port (SSL/TLS)"
+    },
+    {
+      "name": "SMTP_USER",
+      "value": "no-reply@16xstudios.space",
+      "description": "SMTP authentication username/email"
+    },
+    {
+      "name": "SMTP_PASSWORD",
+      "value": "aishwanth1234",
+      "description": "SMTP authentication password"
+    }
+  ],
+  "instructions": {
+    "step1": "Go to Vercel Dashboard → Your Project → Settings → Environment Variables",
+    "step2": "For each variable above, click 'Add New' and enter:",
+    "step2a": "- Key: The 'name' field",
+    "step2b": "- Value: The 'value' field",
+    "step3": "Enable for: Production ✓ Preview ✓ Development ✓",
+    "step4": "Click Save after adding each variable",
+    "step5": "After adding ALL 8 variables, go to Deployments tab",
+    "step6": "Click '...' on latest deployment → Redeploy",
+    "step7": "Wait for deployment to complete and test your website"
+  },
+  "notes": [
+    "GOOGLE_PRIVATE_KEY: Paste the ENTIRE key including -----BEGIN PRIVATE KEY----- and -----END PRIVATE KEY----- lines",
+    "The private key should include all newlines (Vercel handles this automatically)",
+    "Make sure to redeploy after adding variables for changes to take effect",
+    "Check function logs in Vercel if you still see errors after redeploy"
+  ]
+}
+

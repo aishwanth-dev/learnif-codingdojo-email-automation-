@@ -32,16 +32,53 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Remove quotes from private key if present
-    privateKey = privateKey.replace(/^["']|["']$/g, '');
+    // Process private key: handle environment variable formatting
+    // Remove surrounding quotes if present
+    privateKey = privateKey.trim().replace(/^["']+|["']+$/g, '');
+    
+    // Replace escaped newlines with actual newlines (handle both \n and \\n)
     privateKey = privateKey.replace(/\\n/g, '\n');
+    
+    // Ensure we have proper BEGIN/END markers
+    if (!privateKey.startsWith('-----BEGIN')) {
+      // Try to reconstruct if BEGIN marker is missing but key exists
+      if (privateKey.includes('PRIVATE KEY')) {
+        privateKey = '-----BEGIN PRIVATE KEY-----\n' + privateKey.replace(/-----END PRIVATE KEY-----/g, '').trim() + '\n-----END PRIVATE KEY-----\n';
+      } else {
+        console.error('[VERIFY] ✗ Private key format appears invalid (missing BEGIN marker)');
+        console.error('[VERIFY] First 50 chars of key:', privateKey.substring(0, 50));
+        throw new Error('Invalid private key format: missing BEGIN marker');
+      }
+    }
+    
+    // Verify the key ends properly
+    if (!privateKey.includes('-----END PRIVATE KEY-----')) {
+      console.error('[VERIFY] ✗ Private key format appears invalid (missing END marker)');
+      console.error('[VERIFY] Last 50 chars of key:', privateKey.substring(Math.max(0, privateKey.length - 50)));
+      throw new Error('Invalid private key format: missing END marker');
+    }
+    
+    console.log('[VERIFY] ✓ Private key formatted correctly');
+    console.log('[VERIFY] Private key length:', privateKey.length);
+    console.log('[VERIFY] Private key starts with:', privateKey.substring(0, 30));
+    console.log('[VERIFY] Private key ends with:', privateKey.substring(Math.max(0, privateKey.length - 30)));
 
     // Create JWT authentication client
-    const jwt = new JWT({
-      email: serviceAccountEmail,
-      key: privateKey,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
+    let jwt: JWT;
+    try {
+      jwt = new JWT({
+        email: serviceAccountEmail,
+        key: privateKey,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+      });
+      console.log('[VERIFY] ✓ JWT client created successfully');
+    } catch (jwtError: unknown) {
+      const error = jwtError as Error & { code?: string };
+      console.error('[VERIFY] ✗ Failed to create JWT client:', error?.message);
+      console.error('[VERIFY] JWT error code:', error?.code);
+      console.error('[VERIFY] This usually means the private key format is incorrect');
+      throw new Error(`JWT authentication setup failed: ${error?.message || 'Invalid private key format'}`);
+    }
 
     // Initialize the sheet
     const doc = new GoogleSpreadsheet(sheetId, jwt);
@@ -80,8 +117,8 @@ export async function GET(request: NextRequest) {
 
     // Find the row with matching token
     // Token format: base64(email|timestamp)
-    let foundRow = null;
-    let decodedEmail = null;
+    let foundRow: any = null;
+    let decodedEmail: string | null = null;
     
     try {
       // Decode token to get email
@@ -113,9 +150,10 @@ export async function GET(request: NextRequest) {
           break;
         }
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       // Token decode failed, return error
-      console.error('[VERIFY] ✗ Token decode error:', e?.message || e);
+      const error = e as Error;
+      console.error('[VERIFY] ✗ Token decode error:', error?.message || e);
       return NextResponse.json(
         { error: 'Invalid verification token' },
         { status: 400 }
@@ -143,12 +181,18 @@ export async function GET(request: NextRequest) {
     console.log('[VERIFY] ✓ Verification process completed for:', decodedEmail);
 
     return NextResponse.json({ success: true, message: 'Email verified successfully' });
-  } catch (error: any) {
-    console.error('Error verifying email:', error);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('[VERIFY] ✗ Error verifying email:', err);
+    console.error('[VERIFY] Error details:', {
+      message: err?.message,
+      name: err?.name,
+      stack: err?.stack,
+    });
     return NextResponse.json(
       { 
         error: 'Failed to verify email. Please try again.',
-        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+        details: process.env.NODE_ENV === 'development' ? err?.message : undefined
       },
       { status: 500 }
     );

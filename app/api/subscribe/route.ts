@@ -9,10 +9,21 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   console.log('[SUBSCRIBE] Starting subscription process...');
   try {
-    const { email } = await request.json();
-    console.log('[SUBSCRIBE] Received email:', email);
+    let email: string;
+    try {
+      const body = await request.json();
+      email = body?.email;
+      console.log('[SUBSCRIBE] Received email:', email);
+    } catch (parseError: unknown) {
+      const error = parseError as Error;
+      console.error('[SUBSCRIBE] JSON parse error:', error?.message);
+      return NextResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
 
-    if (!email || !email.includes('@')) {
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
       console.error('[SUBSCRIBE] Invalid email format:', email);
       return NextResponse.json(
         { error: 'Valid email is required' },
@@ -26,28 +37,67 @@ export async function POST(request: NextRequest) {
     let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
 
     if (!sheetId || !serviceAccountEmail || !privateKey) {
-      console.error('Missing environment variables:', {
+      console.error('[SUBSCRIBE] ✗ Missing environment variables:', {
         hasSheetId: !!sheetId,
         hasEmail: !!serviceAccountEmail,
         hasKey: !!privateKey,
       });
       return NextResponse.json(
-        { error: 'Server configuration error' },
+        { 
+          error: 'Server configuration error',
+          details: process.env.NODE_ENV === 'development' ? 'Missing required environment variables' : undefined
+        },
         { status: 500 }
       );
     }
 
-    // Remove quotes from private key if present
-    privateKey = privateKey.replace(/^["']|["']$/g, '');
-    // Replace escaped newlines with actual newlines
+    // Process private key: handle environment variable formatting
+    // Remove surrounding quotes if present
+    privateKey = privateKey.trim().replace(/^["']+|["']+$/g, '');
+    
+    // Replace escaped newlines with actual newlines (handle both \n and \\n)
     privateKey = privateKey.replace(/\\n/g, '\n');
+    
+    // Ensure we have proper BEGIN/END markers
+    if (!privateKey.startsWith('-----BEGIN')) {
+      // Try to reconstruct if BEGIN marker is missing but key exists
+      if (privateKey.includes('PRIVATE KEY')) {
+        privateKey = '-----BEGIN PRIVATE KEY-----\n' + privateKey.replace(/-----END PRIVATE KEY-----/g, '').trim() + '\n-----END PRIVATE KEY-----\n';
+      } else {
+        console.error('[SUBSCRIBE] ✗ Private key format appears invalid (missing BEGIN marker)');
+        console.error('[SUBSCRIBE] First 50 chars of key:', privateKey.substring(0, 50));
+        throw new Error('Invalid private key format: missing BEGIN marker');
+      }
+    }
+    
+    // Verify the key ends properly
+    if (!privateKey.includes('-----END PRIVATE KEY-----')) {
+      console.error('[SUBSCRIBE] ✗ Private key format appears invalid (missing END marker)');
+      console.error('[SUBSCRIBE] Last 50 chars of key:', privateKey.substring(Math.max(0, privateKey.length - 50)));
+      throw new Error('Invalid private key format: missing END marker');
+    }
+    
+    console.log('[SUBSCRIBE] ✓ Private key formatted correctly');
+    console.log('[SUBSCRIBE] Private key length:', privateKey.length);
+    console.log('[SUBSCRIBE] Private key starts with:', privateKey.substring(0, 30));
+    console.log('[SUBSCRIBE] Private key ends with:', privateKey.substring(Math.max(0, privateKey.length - 30)));
 
     // Create JWT authentication client
-    const jwt = new JWT({
-      email: serviceAccountEmail,
-      key: privateKey,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
+    let jwt: JWT;
+    try {
+      jwt = new JWT({
+        email: serviceAccountEmail,
+        key: privateKey,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+      });
+      console.log('[SUBSCRIBE] ✓ JWT client created successfully');
+    } catch (jwtError: unknown) {
+      const error = jwtError as Error & { code?: string };
+      console.error('[SUBSCRIBE] ✗ Failed to create JWT client:', error?.message);
+      console.error('[SUBSCRIBE] JWT error code:', error?.code);
+      console.error('[SUBSCRIBE] This usually means the private key format is incorrect');
+      throw new Error(`JWT authentication setup failed: ${error?.message || 'Invalid private key format'}`);
+    }
 
     // Initialize the sheet with JWT authentication
     const doc = new GoogleSpreadsheet(sheetId, jwt);
@@ -68,8 +118,8 @@ export async function POST(request: NextRequest) {
     console.log('Sheet headers:', headers);
     
     // Create row data matching the exact header names
-    const rowData: any = {};
-    const headerMap: { [key: string]: string } = {};
+    const rowData: Record<string, string> = {};
+    const headerMap: Record<string, string> = {};
     
     // Create a case-insensitive mapping
     headers.forEach((header: string) => {
@@ -78,24 +128,28 @@ export async function POST(request: NextRequest) {
     
     // Map our values to the correct header names
     const normalizedEmail = email.toLowerCase().trim();
-    if (headerMap['email']) {
-      rowData[headerMap['email']] = normalizedEmail;
-      console.log('[SUBSCRIBE] Using email column:', headerMap['email']);
+    const emailColumn = headerMap['email'];
+    const verificationColumn = headerMap['verification'];
+    const dateColumn = headerMap['date'];
+    
+    if (emailColumn) {
+      rowData[emailColumn] = normalizedEmail;
+      console.log('[SUBSCRIBE] Using email column:', emailColumn);
     }
-    if (headerMap['verification']) {
-      rowData[headerMap['verification']] = 'pending';
+    if (verificationColumn) {
+      rowData[verificationColumn] = 'pending';
       console.log('[SUBSCRIBE] Setting verification to: pending');
     }
-    if (headerMap['date']) {
+    if (dateColumn) {
       const dateValue = new Date().toISOString();
-      rowData[headerMap['date']] = dateValue;
+      rowData[dateColumn] = dateValue;
       console.log('[SUBSCRIBE] Setting date to:', dateValue);
     }
     
     console.log('[SUBSCRIBE] Row data to save:', rowData);
     
     // Add the row
-    const row = await sheet.addRow(rowData);
+    await sheet.addRow(rowData);
     console.log('[SUBSCRIBE] ✓ Row added to spreadsheet successfully');
     
     // Generate verification token
@@ -114,24 +168,36 @@ export async function POST(request: NextRequest) {
       console.log('[SUBSCRIBE] Attempting to send verification email to:', normalizedEmail);
       await sendVerificationEmail(normalizedEmail, verificationUrl);
       console.log('[SUBSCRIBE] ✓ Verification email sent successfully');
-    } catch (emailError: any) {
-      console.error('[SUBSCRIBE] ✗ Error sending email:', emailError?.message || emailError);
-      console.error('[SUBSCRIBE] Email error stack:', emailError?.stack);
+    } catch (emailError: unknown) {
+      const error = emailError as Error;
+      console.error('[SUBSCRIBE] ✗ Error sending email:', error?.message || emailError);
+      console.error('[SUBSCRIBE] Email error stack:', error?.stack);
       // Don't fail the request if email fails, just log it
     }
 
     console.log('[SUBSCRIBE] ✓ Subscription process completed successfully');
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Error saving email:', error);
-    console.error('Error details:', {
-      message: error?.message,
-      stack: error?.stack,
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('[SUBSCRIBE] ✗ Fatal error:', err);
+    console.error('[SUBSCRIBE] Error details:', {
+      message: err?.message,
+      name: err?.name,
+      stack: err?.stack,
     });
+    
+    // More specific error messages
+    let errorMessage = 'Failed to save email. Please try again.';
+    if (err?.message?.includes('Authentication')) {
+      errorMessage = 'Authentication error. Please check server configuration.';
+    } else if (err?.message?.includes('sheet') || err?.message?.includes('Sheet')) {
+      errorMessage = 'Unable to access spreadsheet. Please check permissions.';
+    }
+    
     return NextResponse.json(
       { 
-        error: 'Failed to save email. Please try again.',
-        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? err?.message : undefined
       },
       { status: 500 }
     );
@@ -146,9 +212,13 @@ async function sendVerificationEmail(email: string, verificationUrl: string) {
   
   // SMTP configuration from environment
   const smtpHost = process.env.SMTP_HOST || 'mail.privateemail.com';
-  const smtpPort = parseInt(process.env.SMTP_PORT || '465');
+  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
   const smtpUser = process.env.SMTP_USER || 'no-reply@16xstudios.space';
   const smtpPassword = process.env.SMTP_PASSWORD || 'aishwanth1234';
+  
+  if (!smtpHost || !smtpUser || !smtpPassword) {
+    throw new Error('SMTP configuration is incomplete');
+  }
 
   console.log('[EMAIL] SMTP Config:', {
     host: smtpHost,
@@ -186,8 +256,16 @@ async function sendVerificationEmail(email: string, verificationUrl: string) {
     subject: mailOptions.subject
   });
 
-  const info = await transporter.sendMail(mailOptions);
-  console.log('[EMAIL] ✓ Email sent successfully. Message ID:', info.messageId);
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[EMAIL] ✓ Email sent successfully. Message ID:', info.messageId);
+    return info;
+  } catch (mailError: unknown) {
+    const error = mailError as Error & { code?: string };
+    console.error('[EMAIL] ✗ Failed to send email:', error?.message);
+    console.error('[EMAIL] Error code:', error?.code);
+    throw new Error(`Failed to send email: ${error?.message || 'Unknown error'}`);
+  }
 }
 
 /**
