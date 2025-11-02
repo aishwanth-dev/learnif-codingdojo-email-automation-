@@ -119,7 +119,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              Successfully joined! 🎉
+              🎉 Successfully joined! Check your Email. 💌
             </motion.p>
           )}
           {status === 'error' && (
