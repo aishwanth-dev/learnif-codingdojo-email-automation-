@@ -103,9 +103,15 @@ export async function POST(request: NextRequest) {
       const learncode = row.get(learncodeColumn);
       const verification = row.get(verificationColumn);
       
-      return email && 
+      const isEligible = email && 
              (!learncode || learncode === '') && 
-             verification === 'verified';
+             (verification === 'verified' || verification === 'done');
+      
+      if (!isEligible && email) {
+        console.log(`[NEWSLETTER] Skipping ${email}: verification="${verification}", learncode="${learncode}"`);
+      }
+      
+      return isEligible;
     });
 
     console.log(`[NEWSLETTER] Found ${eligibleRows.length} eligible emails`);
