@@ -3,6 +3,8 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import PageLayout from './components/PageLayout';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -40,18 +42,8 @@ export default function Home() {
   };
 
   return (
-    <main className={styles.container}>
-      {/* Background Image */}
-      <div className={styles.backgroundImage}>
-        <Image
-          src="/image/images.jpg"
-          alt="Background"
-          fill
-          priority
-          quality={100}
-          style={{ objectFit: 'cover' }}
-        />
-      </div>
+    <PageLayout showParticles={true}>
+      <main className={styles.container}>
 
       {/* Title at top */}
       <motion.h1
@@ -141,28 +133,35 @@ export default function Home() {
           transition={{ delay: 0.9, duration: 0.8 }}
         >
           <div className={styles.avatars}>
-            <div className={`${styles.avatar} ${styles.avatar1}`}></div>
-            <div className={`${styles.avatar} ${styles.avatar2}`}></div>
-            <div className={`${styles.avatar} ${styles.avatar3}`}></div>
+            <div className={styles.avatar}>
+              <Image src="/image/person1.png" alt="Person 1" fill className={styles.avatarImage} />
+            </div>
+            <div className={styles.avatar}>
+              <Image src="/image/person2.jpg" alt="Person 2" fill className={styles.avatarImage} />
+            </div>
+            <div className={styles.avatar}>
+              <Image src="/image/person3.png" alt="Person 3" fill className={styles.avatarImage} />
+            </div>
           </div>
-          <span className={styles.socialText}>~ 2k+ Peoples already joined</span>
+          <span className={styles.socialText}>~200+ Peoples already joined!</span>
         </motion.div>
       </motion.div>
 
-      {/* Footer */}
-      <motion.footer
-        className={styles.footer}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.1, duration: 0.8 }}
-      >
-        <a href="#about" className={styles.footerLink}>About Us</a>
-        <span className={styles.footerSeparator}>•</span>
-        <a href="#privacy" className={styles.footerLink}>Privacy Policy</a>
-        <span className={styles.footerSeparator}>•</span>
-        <a href="#terms" className={styles.footerLink}>Terms and Conditions</a>
-      </motion.footer>
-    </main>
+        {/* Footer */}
+        <motion.footer
+          className={styles.footer}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1, duration: 0.8 }}
+        >
+          <Link href="/about" className={styles.footerLink}>About Us</Link>
+          <span className={styles.footerSeparator}>•</span>
+          <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
+          <span className={styles.footerSeparator}>•</span>
+          <Link href="/terms" className={styles.footerLink}>Terms and Conditions</Link>
+        </motion.footer>
+      </main>
+    </PageLayout>
   );
 }
 

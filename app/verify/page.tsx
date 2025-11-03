@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import PageLayout from '../components/PageLayout';
+import CheckmarkAnimation from '../components/CheckmarkAnimation';
 import styles from './page.module.css';
 
 export default function VerifyPage() {
@@ -40,98 +41,88 @@ export default function VerifyPage() {
   }, []);
 
   return (
-    <main className={styles.container}>
-      {/* Background Image */}
-      <div className={styles.backgroundImage}>
-        <Image
-          src="/image/images.jpg"
-          alt="Background"
-          fill
-          priority
-          quality={100}
-          style={{ objectFit: 'cover' }}
-        />
-      </div>
+    <PageLayout showParticles={true}>
+      <main className={styles.container}>
+        {/* Title at top */}
+        <motion.h1
+          className={styles.topTitle}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+        >
+          learnif.
+        </motion.h1>
 
-      {/* Title at top */}
-      <motion.h1
-        className={styles.topTitle}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-      >
-        learnif.
-      </motion.h1>
-
-      {/* Glass Card */}
-      <motion.div
-        className={styles.glassCard}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-      >
+        {/* Glass Card */}
         <motion.div
-          className={styles.content}
+          className={styles.glassCard}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          {status === 'loading' && (
-            <div className={styles.loaderContainer}>
-              <div className={styles.loader}></div>
-            </div>
-          )}
-          
-          <h2 className={styles.headline}>
-            {status === 'success' ? (
-              <>
-                All set! <span className={styles.cursiveSpan}>You're verified</span>
-              </>
-            ) : status === 'error' ? (
-              'Verification Failed'
-            ) : (
-              'Verifying...'
+          <motion.div
+            className={styles.content}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
+            {status === 'loading' && (
+              <div className={styles.loaderContainer}>
+                <div className={styles.loader}></div>
+              </div>
             )}
-          </h2>
-          
-          <p className={styles.description}>
-            {message}
-          </p>
+            
+            {status === 'success' && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.6 }}
+                  className={styles.checkmarkContainer}
+                >
+                  <CheckmarkAnimation />
+                </motion.div>
+                <h2 className={styles.headline}>
+                  Verified!
+                </h2>
+                <p className={styles.description}>
+                  You've successfully verified your email. A new chapter of learning starts here.
+                </p>
+              </>
+            )}
 
-          {status === 'success' && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className={styles.successIcon}
-            >
-              ✓
-            </motion.div>
-          )}
-
-          {status === 'error' && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className={styles.errorIcon}
-            >
-              ✗
-            </motion.div>
-          )}
+            {status === 'error' && (
+              <>
+                <h2 className={styles.headline}>
+                  Verification Failed
+                </h2>
+                <p className={styles.description}>
+                  {message}
+                </p>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.6 }}
+                  className={styles.errorIcon}
+                >
+                  ✗
+                </motion.div>
+              </>
+            )}
+          </motion.div>
         </motion.div>
-      </motion.div>
 
-      {/* Footer */}
-      <motion.footer
-        className={styles.footer}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.8 }}
-      >
-        <a href="/" className={styles.footerLink}>Back to Home</a>
-      </motion.footer>
-    </main>
+        {/* Footer */}
+        <motion.footer
+          className={styles.footer}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.8 }}
+        >
+          <a href="/" className={styles.footerLink}>Back to Home</a>
+        </motion.footer>
+      </main>
+    </PageLayout>
   );
 }
 
