@@ -3,6 +3,17 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 import { google } from 'googleapis';
 import * as nodemailer from 'nodemailer';
+import * as fs from 'fs';
+import * as path from 'path';
+// Render code as PNG for reliable formatting in email clients
+// Lightweight dependency; if unavailable at runtime, we gracefully fall back to <pre> blocks
+let Canvas: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  Canvas = require('canvas');
+} catch (_) {
+  Canvas = null;
+}
 
 // Mark route as dynamic
 export const dynamic = 'force-dynamic';
@@ -12,6 +23,13 @@ interface NewsletterData {
   topics: string[];
   read_time: string;
   questions: any[];
+}
+
+interface DriveNewsletterPayload {
+  data: NewsletterData;
+  fileId: string;
+  fileDescription: string;
+  fileName: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -58,15 +76,16 @@ export async function POST(request: NextRequest) {
 
     console.log('[NEWSLETTER] ✓ JWT client created successfully');
 
-    // Get newsletter JSON from Drive
-    const newsletterData = await getNewsletterFromDrive(jwt, driveFolderId);
-    if (!newsletterData) {
+    // Get newsletter JSON from Drive (do not mark done yet)
+    const drivePayload = await getNewsletterFromDrive(jwt, driveFolderId);
+    if (!drivePayload) {
       return NextResponse.json(
         { error: 'No newsletter data found' },
         { status: 404 }
       );
     }
-    console.log('[NEWSLETTER] ✓ Newsletter data fetched from Drive');
+    const newsletterData = drivePayload.data;
+    console.log('[NEWSLETTER] ✓ Newsletter data fetched from Drive:', drivePayload.fileName);
 
     // Get emails from Google Sheet
     const doc = new GoogleSpreadsheet(sheetId, jwt);
@@ -130,6 +149,9 @@ export async function POST(request: NextRequest) {
 
     const websiteUrl = process.env.WEBSITE_URL || 'http://localhost:3000';
     
+    // Prepare images for solutions (render code as PNG and embed)
+    await attachSolutionImages(newsletterData);
+
     // Send emails
     let sentCount = 0;
     let failedCount = 0;
@@ -155,6 +177,14 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[NEWSLETTER] ✓ Process completed. Sent: ${sentCount}, Failed: ${failedCount}`);
+
+    // Mark the processed Drive file as done AFTER sending loop runs
+    try {
+      await markDriveFileAsDone(jwt, drivePayload.fileId, drivePayload.fileDescription);
+      console.log(`[DRIVE] ✓ Marked ${drivePayload.fileName} as done`);
+    } catch (e) {
+      console.error('[DRIVE] ✗ Failed to mark file as done:', e);
+    }
 
     return NextResponse.json({
       success: true,
@@ -185,7 +215,7 @@ export async function POST(request: NextRequest) {
 /**
  * Get newsletter JSON from Google Drive folder
  */
-async function getNewsletterFromDrive(jwt: JWT, folderId: string): Promise<NewsletterData | null> {
+async function getNewsletterFromDrive(jwt: JWT, folderId: string): Promise<DriveNewsletterPayload | null> {
   try {
     console.log('[DRIVE] Fetching newsletter from Drive folder:', folderId);
     
@@ -194,15 +224,26 @@ async function getNewsletterFromDrive(jwt: JWT, folderId: string): Promise<Newsl
     // List all files in the folder
     const response = await drive.files.list({
       q: `'${folderId}' in parents and mimeType='application/json' and trashed=false`,
-      orderBy: 'createdTime asc',
+      orderBy: 'name asc',
       fields: 'files(id, name, createdTime)',
     });
 
     const files = response.data.files || [];
     console.log('[DRIVE] Found JSON files:', files.map(f => f.name));
 
+    // Prefer files named as dayN.json in ascending order
+    const dayFiles = files
+      .filter(f => (f.name || '').toLowerCase().match(/^day\d+\.json/))
+      .sort((a, b) => {
+        const an = parseInt(((a.name || '').match(/\d+/) || ['0'])[0], 10);
+        const bn = parseInt(((b.name || '').match(/\d+/) || ['0'])[0], 10);
+        return an - bn;
+      });
+
+    const pickList = dayFiles.length ? dayFiles : files;
+
     // Find the first JSON file without "✅done" in the description or name
-    for (const file of files) {
+    for (const file of pickList) {
       if (!file.id || !file.name) continue;
       
       // Get file details including description
@@ -229,16 +270,8 @@ async function getNewsletterFromDrive(jwt: JWT, folderId: string): Promise<Newsl
       const newsletterData = JSON.parse(fileData.data as string) as NewsletterData;
       console.log(`[DRIVE] ✓ Loaded newsletter: ${file.name}`);
 
-      // Mark the file as done by updating description
-      await drive.files.update({
-        fileId: file.id,
-        requestBody: {
-          description: description ? `${description}\n✅done` : '✅done'
-        }
-      });
-      console.log(`[DRIVE] ✓ Marked ${file.name} as done`);
-
-      return newsletterData;
+      // Do not mark done here; return payload so caller can mark after sending
+      return { data: newsletterData, fileId: file.id, fileDescription: description, fileName: file.name };
     }
 
     console.log('[DRIVE] No unprocessed newsletter files found');
@@ -249,6 +282,16 @@ async function getNewsletterFromDrive(jwt: JWT, folderId: string): Promise<Newsl
   }
 }
 
+async function markDriveFileAsDone(jwt: JWT, fileId: string, existingDescription: string) {
+  const drive = google.drive({ version: 'v3', auth: jwt });
+  await drive.files.update({
+    fileId,
+    requestBody: {
+      description: existingDescription ? `${existingDescription}\n✅done` : '✅done'
+    }
+  });
+}
+
 /**
  * Send newsletter email
  */
@@ -256,7 +299,11 @@ async function sendNewsletterEmail(email: string, htmlContent: string) {
   const smtpHost = process.env.SMTP_HOST || 'mail.privateemail.com';
   const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
   const smtpUser = process.env.SMTP_USER || 'no-reply@16xstudios.space';
-  const smtpPassword = process.env.SMTP_PASSWORD || 'aishwanth1234';
+  const smtpPassword = process.env.SMTP_PASSWORD || '';
+
+  if (!smtpPassword) {
+    throw new Error('SMTP_PASSWORD is not configured');
+  }
 
   const transporter = nodemailer.createTransport({
     host: smtpHost,
@@ -268,12 +315,16 @@ async function sendNewsletterEmail(email: string, htmlContent: string) {
     },
   });
 
-  const mailOptions = {
+  const unsubscribeMatch = htmlContent.match(/href=\"(https?:\/\/[^\"]+unsubscribe[^\"]*)\"/);
+  const unsubscribeUrl = unsubscribeMatch ? unsubscribeMatch[1] : undefined;
+
+  const mailOptions: any = {
     from: `"learnif." <${smtpUser}>`,
     to: email,
     subject: 'Daily Coding Challenge from learnif.',
     html: htmlContent,
-    text: 'View this email in HTML format to see the full content.',
+    text: 'Your daily coding challenge. View in HTML for full formatting.',
+    ...(unsubscribeUrl ? { list: { unsubscribe: unsubscribeUrl } } : {})
   };
 
   await transporter.sendMail(mailOptions);
@@ -440,7 +491,7 @@ function generateCodingQuestionHTML(question: any): string {
       <td style="padding: 20px 0;">
         <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 18px; border: 1px solid rgba(255, 255, 255, 0.1);">
           <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif;">Solution</h3>
-          <pre style="margin: 0; font-size: 14px; color: rgba(255, 255, 255, 0.95); font-family: 'Courier New', monospace; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(question.solution.code)}</pre>
+          ${question.solution_image_base64 ? `<img src="data:image/png;base64,${question.solution_image_base64}" alt="Solution" style="display:block; width:100%; height:auto; border-radius: 8px;"/>` : `<pre style=\"margin: 0; font-size: 14px; color: rgba(255, 255, 255, 0.95); font-family: 'Courier New', monospace; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;\">${escapeHtml(question?.solution?.code ?? '')}</pre>`}
           <div style="margin-top: 12px; font-size: 13px; color: rgba(255, 255, 255, 0.75); font-family: 'Epilogue', Arial, sans-serif;">
             <span>Time: ${question.solution.time_complexity}</span>
             <span style="margin: 0 15px;">•</span>
@@ -524,7 +575,7 @@ function generateCodingQuestionHTML(question: any): string {
 function generateInterviewFlowHTML(question: any): string {
   const dialogueHTML = question.dialogue.map((msg: any) => `
     <tr>
-      <td style="padding: 15px 20px; ${msg.speaker === 'Interviewer' ? 'background: rgba(79, 70, 229, 0.1);' : 'background: rgba(139, 92, 246, 0.1);'}" ${msg.speaker === 'Interviewer' ? 'style="padding: 15px 20px; background: rgba(79, 70, 229, 0.1);"' : ''}>
+      <td style="padding: 15px 20px; ${msg.speaker === 'Interviewer' ? 'background: rgba(79, 70, 229, 0.1);' : 'background: rgba(139, 92, 246, 0.1);'}">
         <div style="font-size: 13px; font-weight: 600; color: ${msg.speaker === 'Interviewer' ? '#8B9AFF' : '#A78BFA'}; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Epilogue', Arial, sans-serif;">
           ${escapeHtml(msg.speaker)}
         </div>
@@ -592,6 +643,105 @@ function escapeHtml(text: string): string {
     '"': '&quot;',
     "'": '&#039;'
   };
-  return text.replace(/[&<>"']/g, (m) => map[m]);
+  const value = text == null ? '' : String(text);
+  return value.replace(/[&<>"']/g, (m) => map[m]);
+}
+
+/**
+ * Pre-render solution code blocks to PNG data URLs and attach to questions as `solution_image_base64`.
+ * Falls back silently if the canvas dependency is not available at runtime.
+ */
+async function attachSolutionImages(data: NewsletterData) {
+  if (!Canvas) return; // fallback to HTML <pre>
+  const fontPath = path.join(process.cwd(), 'public', 'fonts', 'Epilogue-Regular.ttf');
+  try {
+    if (fs.existsSync(fontPath)) {
+      // Register once; ignore if already registered
+      try { Canvas.registerFont(fontPath, { family: 'EpilogueEmail' }); } catch (_) {}
+    }
+  } catch (_) {}
+
+  const promises: Promise<void>[] = [];
+  for (const q of data.questions) {
+    if (q?.type === 'coding' && q?.solution?.code) {
+      promises.push(
+        (async () => {
+          try {
+            const base64 = await renderCodeToPng(String(q.solution.code));
+            if (base64) {
+              q.solution_image_base64 = base64;
+            }
+          } catch (_) {}
+        })()
+      );
+    }
+  }
+  await Promise.all(promises);
+}
+
+async function renderCodeToPng(code: string): Promise<string | null> {
+  if (!Canvas) return null;
+  const padding = 32;
+  const maxWidth = 1200;
+  const lineHeight = 28;
+  const fontSize = 18;
+  const background = '#0b1020';
+  const card = '#0f1b3d';
+  const textColor = '#e6f0ff';
+
+  // Create a measuring context
+  const tmp = Canvas.createCanvas(1, 1);
+  const mctx = tmp.getContext('2d');
+  mctx.font = `${fontSize}px EpilogueEmail, monospace`;
+
+  // Word-wrap code to fit maxWidth - 2*padding
+  const words = code.replace(/\r\n/g, '\n').split(/(\s+)/);
+  const lines: string[] = [];
+  let current = '';
+  const contentWidth = maxWidth - padding * 2;
+  for (const part of words) {
+    const tentative = current + part;
+    const width = mctx.measureText(tentative).width;
+    if (width > contentWidth && current) {
+      lines.push(current);
+      current = part.trimStart();
+    } else {
+      current = tentative;
+    }
+    if (part.includes('\n')) {
+      const split = current.split('\n');
+      while (split.length > 1) {
+        const head = split.shift() as string;
+        lines.push(head);
+      }
+      current = split.join('\n');
+    }
+  }
+  if (current) lines.push(current);
+
+  const height = Math.min(2000, padding * 2 + Math.max(lines.length, 1) * lineHeight + 20);
+  const canvas = Canvas.createCanvas(maxWidth, height);
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, maxWidth, height);
+
+  // Card
+  ctx.fillStyle = card;
+  ctx.fillRect(padding / 2, padding / 2, maxWidth - padding, height - padding);
+
+  // Text
+  ctx.font = `${fontSize}px EpilogueEmail, monospace`;
+  ctx.fillStyle = textColor;
+  ctx.textBaseline = 'top';
+  let y = padding;
+  for (const line of lines) {
+    ctx.fillText(line, padding, y);
+    y += lineHeight;
+    if (y > height - padding) break; // truncate if too tall
+  }
+
+  return canvas.toBuffer('image/png').toString('base64');
 }
 
