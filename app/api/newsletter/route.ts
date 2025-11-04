@@ -128,8 +128,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate email HTML
-    const emailHtml = generateNewsletterHTML(newsletterData);
+    const websiteUrl = process.env.WEBSITE_URL || 'http://localhost:3000';
     
     // Send emails
     let sentCount = 0;
@@ -138,7 +137,11 @@ export async function POST(request: NextRequest) {
     for (const row of batchToSend) {
       try {
         const email = row.get(emailColumn);
-        await sendNewsletterEmail(email, emailHtml);
+        const timestamp = Date.now();
+        const token = Buffer.from(`${email}|${timestamp}`).toString('base64');
+        const unsubscribeUrl = `${websiteUrl}/unsubscribe?token=${encodeURIComponent(token)}`;
+        const personalizedHtml = generateNewsletterHTML(newsletterData, unsubscribeUrl, String(email));
+        await sendNewsletterEmail(email, personalizedHtml);
         
         // Mark as sent
         row.set(learncodeColumn, 'sent');
@@ -279,7 +282,7 @@ async function sendNewsletterEmail(email: string, htmlContent: string) {
 /**
  * Generate newsletter HTML from JSON data
  */
-function generateNewsletterHTML(data: NewsletterData): string {
+function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, toEmail?: string): string {
   const questionsHTML = data.questions.map(q => {
     if (q.type === 'coding') {
       return generateCodingQuestionHTML(q);
@@ -320,6 +323,12 @@ function generateNewsletterHTML(data: NewsletterData): string {
               <span style="font-size: 28px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.5px; font-family: 'Epilogue', Arial, sans-serif;">learnif.</span>
             </td>
           </tr>
+          ${toEmail ? `
+          <tr>
+            <td align="center" style="padding-bottom: 10px;">
+              <span style="font-size: 12px; color: rgba(255,255,255,0.6); font-family: 'Epilogue', Arial, sans-serif;">Sent to <span style="color: rgba(255,255,255,0.85); font-weight: 600;">${escapeHtml(toEmail)}</span></span>
+            </td>
+          </tr>` : ''}
         </table>
 
         <!-- Main Content Card -->
@@ -391,7 +400,7 @@ function generateNewsletterHTML(data: NewsletterData): string {
                 You're receiving this because you subscribed to learnif.
               </p>
               <p style="margin: 10px 0 0 0;">
-                <a href="#" style="font-size: 12px; color: rgba(255, 255, 255, 0.6); text-decoration: underline; font-family: 'Epilogue', Arial, sans-serif;">Unsubscribe</a>
+                <a href="${unsubscribeUrl}" style="font-size: 12px; color: rgba(255, 255, 255, 0.85); text-decoration: underline; font-family: 'Epilogue', Arial, sans-serif;">Unsubscribe</a>
                 <span style="color: rgba(255, 255, 255, 0.3); margin: 0 8px;">•</span>
                 <a href="https://learnif.16xstudios.space" style="font-size: 12px; color: rgba(255, 255, 255, 0.6); text-decoration: underline; font-family: 'Epilogue', Arial, sans-serif;">View Website</a>
               </p>
