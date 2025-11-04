@@ -314,30 +314,25 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Epilogue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0a0a0a;">
     <tr>
-      <td align="center" style="padding: 40px 20px;">
+      <td align="center" style="padding: 24px 16px;">
         
         <!-- Header Logo -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 680px; margin: 0 auto;">
           <tr>
-            <td align="center" style="padding-bottom: 30px;">
-              <span style="font-size: 28px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.5px; font-family: 'Epilogue', Arial, sans-serif;">learnif.</span>
+            <td align="center" style="padding-bottom: 16px;">
+              <span style="font-size: 30px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.5px; font-family: 'Epilogue', Arial, sans-serif;">learnif.</span>
             </td>
           </tr>
-          ${toEmail ? `
-          <tr>
-            <td align="center" style="padding-bottom: 10px;">
-              <span style="font-size: 12px; color: rgba(255,255,255,0.6); font-family: 'Epilogue', Arial, sans-serif;">Sent to <span style="color: rgba(255,255,255,0.85); font-weight: 600;">${escapeHtml(toEmail)}</span></span>
-            </td>
-          </tr>` : ''}
+          
         </table>
 
         <!-- Main Content Card -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 680px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);">
           
           <!-- Title -->
           <tr>
-            <td style="padding: 40px 40px 20px;">
-              <h1 style="margin: 0; font-size: 32px; font-weight: 500; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif; line-height: 1.3;">
+            <td style="padding: 24px 20px 12px;">
+              <h1 style="margin: 0; font-size: 30px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif; line-height: 1.35;">
                 ${escapeHtml(data.title)}
               </h1>
             </td>
@@ -345,8 +340,8 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 
           <!-- Topics List -->
           <tr>
-            <td style="padding: 0 40px 20px;">
-              <ul style="margin: 0; padding-left: 20px; color: rgba(255, 255, 255, 0.8); font-size: 16px; line-height: 1.8; font-family: 'Epilogue', Arial, sans-serif;">
+            <td style="padding: 0 20px 12px;">
+              <ul style="margin: 0; padding-left: 18px; color: rgba(255, 255, 255, 0.9); font-size: 17px; line-height: 1.75; font-family: 'Epilogue', Arial, sans-serif;">
                 ${topicsHTML}
               </ul>
             </td>
@@ -354,8 +349,8 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 
           <!-- Read Time -->
           <tr>
-            <td style="padding: 0 40px 30px;">
-              <p style="margin: 0; font-size: 14px; color: rgba(255, 255, 255, 0.6); font-family: 'Epilogue', Arial, sans-serif;">
+            <td style="padding: 0 20px 16px;">
+              <p style="margin: 0; font-size: 15px; color: rgba(255, 255, 255, 0.7); font-family: 'Epilogue', Arial, sans-serif;">
                 ⏱️ ${escapeHtml(data.read_time)}
               </p>
             </td>
@@ -363,7 +358,7 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 
           <!-- Separator -->
           <tr>
-            <td style="padding: 0 40px;">
+            <td style="padding: 0 20px;">
               <div style="height: 1px; background-color: rgba(255, 255, 255, 0.15);"></div>
             </td>
           </tr>
@@ -373,18 +368,18 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 
           <!-- Separator -->
           <tr>
-            <td style="padding: 20px 40px 0;">
+            <td style="padding: 16px 20px 0;">
               <div style="height: 1px; background-color: rgba(255, 255, 255, 0.15);"></div>
             </td>
           </tr>
 
           <!-- Footer Message -->
           <tr>
-            <td style="padding: 30px 40px 40px;">
-              <p style="margin: 0 0 20px 0; font-size: 14px; color: rgba(255, 255, 255, 0.7); line-height: 1.6; font-family: 'Epilogue', Arial, sans-serif; text-align: center;">
+            <td style="padding: 20px 20px 24px;">
+              <p style="margin: 0 0 14px 0; font-size: 15px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; font-family: 'Epilogue', Arial, sans-serif; text-align: center;">
                 Keep pushing your limits. Tomorrow's another challenge.
               </p>
-              <p style="margin: 0; font-size: 12px; color: rgba(255, 255, 255, 0.5); text-align: center; font-family: 'Epilogue', Arial, sans-serif;">
+              <p style="margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.6); text-align: center; font-family: 'Epilogue', Arial, sans-serif;">
                 Daily coding questions, complete answers, endless growth.
               </p>
             </td>
@@ -393,9 +388,9 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
         </table>
 
         <!-- Unsubscribe Footer -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 40px auto 0;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 680px; margin: 24px auto 0;">
           <tr>
-            <td style="padding: 20px 40px; text-align: center;">
+            <td style="padding: 16px 20px; text-align: center;">
               <p style="margin: 0; font-size: 12px; color: rgba(255, 255, 255, 0.4); font-family: 'Epilogue', Arial, sans-serif;">
                 You're receiving this because you subscribed to learnif.
               </p>
@@ -407,8 +402,8 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding: 0 20px 20px;">
-              <p style="margin: 0; font-size: 12px; color: rgba(255, 255, 255, 0.3); font-family: 'Epilogue', Arial, sans-serif;">
+            <td align="center" style="padding: 0 16px 16px;">
+              <p style="margin: 0; font-size: 12px; color: rgba(255, 255, 255, 0.4); font-family: 'Epilogue', Arial, sans-serif;">
                 © ${new Date().getFullYear()} learnif. All rights reserved.
               </p>
             </td>
@@ -431,7 +426,7 @@ function generateCodingQuestionHTML(question: any): string {
     <tr>
       <td style="padding: 8px 0;">
         <strong style="color: rgba(255, 255, 255, 0.9); font-family: 'Epilogue', Arial, sans-serif;">Example ${idx + 1}:</strong>
-        <div style="margin-top: 4px; font-size: 14px; color: rgba(255, 255, 255, 0.75); font-family: 'Courier New', monospace; line-height: 1.6;">
+        <div style="margin-top: 4px; font-size: 15px; color: rgba(255, 255, 255, 0.85); font-family: 'Courier New', monospace; line-height: 1.6;">
           <div>Input: <span style="color: #4CAF50;">${escapeHtml(ex.input)}</span></div>
           <div>Output: <span style="color: #4CAF50;">${escapeHtml(ex.output)}</span></div>
           <div>Explanation: ${escapeHtml(ex.explanation)}</div>
@@ -443,10 +438,10 @@ function generateCodingQuestionHTML(question: any): string {
   const solutionHTML = question.solution ? `
     <tr>
       <td style="padding: 20px 0;">
-        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
-          <h3 style="margin: 0 0 15px 0; font-size: 18px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif;">Solution</h3>
-          <pre style="margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.9); font-family: 'Courier New', monospace; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(question.solution.code)}</pre>
-          <div style="margin-top: 15px; font-size: 13px; color: rgba(255, 255, 255, 0.7); font-family: 'Epilogue', Arial, sans-serif;">
+        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 18px; border: 1px solid rgba(255, 255, 255, 0.1);">
+          <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif;">Solution</h3>
+          <pre style="margin: 0; font-size: 14px; color: rgba(255, 255, 255, 0.95); font-family: 'Courier New', monospace; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(question.solution.code)}</pre>
+          <div style="margin-top: 12px; font-size: 13px; color: rgba(255, 255, 255, 0.75); font-family: 'Epilogue', Arial, sans-serif;">
             <span>Time: ${question.solution.time_complexity}</span>
             <span style="margin: 0 15px;">•</span>
             <span>Space: ${question.solution.space_complexity}</span>
@@ -469,14 +464,14 @@ function generateCodingQuestionHTML(question: any): string {
 
   return `
   <tr>
-    <td style="padding: 30px 40px;">
+    <td style="padding: 20px 20px;">
       <!-- Question Card -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: rgba(255, 255, 255, 0.03); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
         
         <!-- Question Header -->
         <tr>
-          <td style="padding: 25px 25px 15px;">
-            <h2 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif; line-height: 1.3;">
+          <td style="padding: 20px 20px 12px;">
+            <h2 style="margin: 0 0 8px 0; font-size: 26px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif; line-height: 1.3;">
               ${escapeHtml(question.title)}
             </h2>
             <div style="margin-bottom: 15px;">
@@ -492,8 +487,8 @@ function generateCodingQuestionHTML(question: any): string {
 
         <!-- Description -->
         <tr>
-          <td style="padding: 0 25px 20px;">
-            <p style="margin: 0; font-size: 15px; color: rgba(255, 255, 255, 0.8); line-height: 1.7; font-family: 'Epilogue', Arial, sans-serif;">
+          <td style="padding: 0 20px 16px;">
+            <p style="margin: 0; font-size: 16px; color: rgba(255, 255, 255, 0.88); line-height: 1.7; font-family: 'Epilogue', Arial, sans-serif;">
               ${escapeHtml(question.description)}
             </p>
           </td>
@@ -501,8 +496,8 @@ function generateCodingQuestionHTML(question: any): string {
 
         <!-- Examples -->
         <tr>
-          <td style="padding: 0 25px 20px;">
-            <h3 style="margin: 0 0 15px 0; font-size: 18px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif;">Examples</h3>
+          <td style="padding: 0 20px 16px;">
+            <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif;">Examples</h3>
             <table role="presentation" width="100%">
               ${examplesHTML}
             </table>
@@ -546,14 +541,14 @@ function generateInterviewFlowHTML(question: any): string {
 
   return `
   <tr>
-    <td style="padding: 30px 40px;">
+    <td style="padding: 20px 20px;">
       <!-- Interview Flow Card -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: rgba(255, 255, 255, 0.03); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
         
         <!-- Header -->
         <tr>
-          <td style="padding: 25px 25px 15px;">
-            <h2 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif; line-height: 1.3;">
+          <td style="padding: 20px 20px 12px;">
+            <h2 style="margin: 0 0 8px 0; font-size: 26px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif; line-height: 1.3;">
               ${escapeHtml(question.title)}
             </h2>
             <div style="margin-bottom: 15px;">
@@ -564,8 +559,8 @@ function generateInterviewFlowHTML(question: any): string {
 
         <!-- Description -->
         <tr>
-          <td style="padding: 0 25px 20px;">
-            <p style="margin: 0; font-size: 15px; color: rgba(255, 255, 255, 0.8); line-height: 1.7; font-family: 'Epilogue', Arial, sans-serif;">
+          <td style="padding: 0 20px 16px;">
+            <p style="margin: 0; font-size: 16px; color: rgba(255, 255, 255, 0.88); line-height: 1.7; font-family: 'Epilogue', Arial, sans-serif;">
               ${escapeHtml(question.description)}
             </p>
           </td>

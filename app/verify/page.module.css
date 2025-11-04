@@ -189,34 +189,34 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: 1.25rem;
+    padding: 0.75rem;
   }
   .glassCard {
-    padding: 2rem 1.5rem;
-    max-width: 95%;
+    padding: 1.5rem 1rem;
+    max-width: 100%;
   }
 
   .topTitle {
-    font-size: 1.75rem;
-    top: 1.5rem;
-    padding: 0.5rem 1.5rem;
+    font-size: 2rem;
+    top: 1rem;
+    padding: 0.5rem 1rem;
   }
 
   .headline {
-    font-size: 1.45rem;
-  }
-
-  .cursiveSpan {
     font-size: 1.7rem;
   }
 
+  .cursiveSpan {
+    font-size: 2rem;
+  }
+
   .description {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .footer {
-    bottom: 1rem;
-    padding: 0.4rem 1rem;
+    bottom: 0.75rem;
+    padding: 0.4rem 0.75rem;
   }
 }
 

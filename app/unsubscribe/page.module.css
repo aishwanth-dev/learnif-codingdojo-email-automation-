@@ -116,22 +116,22 @@
 
 @media (max-width: 768px) {
   .glassCard {
-    padding: 2rem 1.5rem;
-    max-width: 90%;
+    padding: 1.5rem 1rem;
+    max-width: 100%;
   }
 
   .topTitle {
-    font-size: 1.7rem;
-    top: 1.25rem;
-    padding: 0.5rem 1.25rem;
+    font-size: 2rem;
+    top: 1rem;
+    padding: 0.5rem 1rem;
   }
 
   .headline {
-    font-size: 1.4rem;
+    font-size: 1.7rem;
   }
 
   .description {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
   }
 }
 

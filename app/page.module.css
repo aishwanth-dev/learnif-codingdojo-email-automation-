@@ -268,17 +268,17 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: 1.25rem;
+    padding: 0.75rem;
   }
   .glassCard {
-    padding: 2rem 1.5rem;
-    max-width: 95%;
+    padding: 1.5rem 1rem;
+    max-width: 100%;
   }
 
   .topTitle {
-    font-size: 1.75rem;
-    top: 1.5rem;
-    padding: 0.5rem 1.5rem;
+    font-size: 2rem;
+    top: 1rem;
+    padding: 0.5rem 1rem;
     left: 0;
     right: 0;
     margin-left: auto;
@@ -287,15 +287,15 @@
   }
 
   .headline {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
 
   .cursiveSpan {
-    font-size: 1.7rem;
+    font-size: 2rem;
   }
 
   .description {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .inputContainer {
@@ -303,13 +303,14 @@
   }
 
   .input {
-    font-size: 0.95rem;
-    padding: 0.9rem 1.1rem;
+    font-size: 1.05rem;
+    padding: 1rem 1.1rem;
   }
 
   .button {
     width: 100%;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
+    padding: 1rem 1.25rem;
   }
 
   .socialProof {
@@ -324,8 +325,8 @@
   }
 
   .footer {
-    bottom: 1rem;
-    padding: 0.4rem 1rem;
+    bottom: 0.75rem;
+    padding: 0.4rem 0.75rem;
     gap: 0.5rem;
     flex-wrap: wrap;
   }
