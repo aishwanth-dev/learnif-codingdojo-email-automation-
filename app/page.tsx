@@ -111,7 +111,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              🎉 Successfully joined! Check your Email. 💌
+              🩷 You're in! Check your inbox (and spam) for the verification mail. 💌
             </motion.p>
           )}
           {status === 'error' && (
