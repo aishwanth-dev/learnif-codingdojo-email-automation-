@@ -365,7 +365,7 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 <body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Epilogue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #0a0a0a;">
     <tr>
-      <td align="center" style="padding: 24px 16px;">
+      <td align="center" style="padding: 16px 12px;">
         
         <!-- Header Logo -->
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 680px; margin: 0 auto;">
@@ -382,7 +382,7 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
           
           <!-- Title -->
           <tr>
-            <td style="padding: 24px 20px 12px;">
+          <td style="padding: 20px 16px 10px;">
               <h1 style="margin: 0; font-size: 30px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif; line-height: 1.35;">
                 ${escapeHtml(data.title)}
               </h1>
@@ -391,8 +391,8 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 
           <!-- Topics List -->
           <tr>
-            <td style="padding: 0 20px 12px;">
-              <ul style="margin: 0; padding-left: 18px; color: rgba(255, 255, 255, 0.9); font-size: 17px; line-height: 1.75; font-family: 'Epilogue', Arial, sans-serif;">
+            <td style="padding: 0 16px 10px;">
+              <ul style="margin: 0; padding-left: 18px; color: rgba(255, 255, 255, 0.92); font-size: 18px; line-height: 1.6; font-family: 'Epilogue', Arial, sans-serif;">
                 ${topicsHTML}
               </ul>
             </td>
@@ -400,8 +400,8 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 
           <!-- Read Time -->
           <tr>
-            <td style="padding: 0 20px 16px;">
-              <p style="margin: 0; font-size: 15px; color: rgba(255, 255, 255, 0.7); font-family: 'Epilogue', Arial, sans-serif;">
+            <td style="padding: 0 16px 12px;">
+              <p style="margin: 0; font-size: 16px; color: rgba(255, 255, 255, 0.75); font-family: 'Epilogue', Arial, sans-serif;">
                 ⏱️ ${escapeHtml(data.read_time)}
               </p>
             </td>
@@ -419,7 +419,7 @@ function generateNewsletterHTML(data: NewsletterData, unsubscribeUrl: string, to
 
           <!-- Separator -->
           <tr>
-            <td style="padding: 16px 20px 0;">
+            <td style="padding: 14px 16px 0;">
               <div style="height: 1px; background-color: rgba(255, 255, 255, 0.15);"></div>
             </td>
           </tr>
@@ -489,14 +489,9 @@ function generateCodingQuestionHTML(question: any): string {
   const solutionHTML = question.solution ? `
     <tr>
       <td style="padding: 20px 0;">
-        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 18px; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div style="background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
           <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif;">Solution</h3>
           ${question.solution_image_base64 ? `<img src="data:image/png;base64,${question.solution_image_base64}" alt="Solution" style="display:block; width:100%; height:auto; border-radius: 8px;"/>` : `<pre style=\"margin: 0; font-size: 14px; color: rgba(255, 255, 255, 0.95); font-family: 'Courier New', monospace; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;\">${escapeHtml(question?.solution?.code ?? '')}</pre>`}
-          <div style="margin-top: 12px; font-size: 13px; color: rgba(255, 255, 255, 0.75); font-family: 'Epilogue', Arial, sans-serif;">
-            <span>Time: ${question.solution.time_complexity}</span>
-            <span style="margin: 0 15px;">•</span>
-            <span>Space: ${question.solution.space_complexity}</span>
-          </div>
         </div>
       </td>
     </tr>
@@ -515,13 +510,13 @@ function generateCodingQuestionHTML(question: any): string {
 
   return `
   <tr>
-    <td style="padding: 20px 20px;">
+            <td style="padding: 16px 16px;">
       <!-- Question Card -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background: rgba(255, 255, 255, 0.03); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
         
         <!-- Question Header -->
         <tr>
-          <td style="padding: 20px 20px 12px;">
+          <td style="padding: 16px 16px 10px;">
             <h2 style="margin: 0 0 8px 0; font-size: 26px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif; line-height: 1.3;">
               ${escapeHtml(question.title)}
             </h2>
@@ -538,8 +533,8 @@ function generateCodingQuestionHTML(question: any): string {
 
         <!-- Description -->
         <tr>
-          <td style="padding: 0 20px 16px;">
-            <p style="margin: 0; font-size: 16px; color: rgba(255, 255, 255, 0.88); line-height: 1.7; font-family: 'Epilogue', Arial, sans-serif;">
+          <td style="padding: 0 16px 12px;">
+            <p style="margin: 0; font-size: 17px; color: rgba(255, 255, 255, 0.9); line-height: 1.6; font-family: 'Epilogue', Arial, sans-serif;">
               ${escapeHtml(question.description)}
             </p>
           </td>
@@ -547,7 +542,7 @@ function generateCodingQuestionHTML(question: any): string {
 
         <!-- Examples -->
         <tr>
-          <td style="padding: 0 20px 16px;">
+          <td style="padding: 0 16px 12px;">
             <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #FFFFFF; font-family: 'Epilogue', Arial, sans-serif;">Examples</h3>
             <table role="presentation" width="100%">
               ${examplesHTML}
@@ -560,7 +555,7 @@ function generateCodingQuestionHTML(question: any): string {
 
         <!-- Bottom padding -->
         <tr>
-          <td style="padding: 0 25px 25px;"></td>
+          <td style="padding: 0 18px 18px;"></td>
         </tr>
 
       </table>
@@ -652,10 +647,9 @@ function escapeHtml(text: string): string {
  * Falls back silently if the canvas dependency is not available at runtime.
  */
 async function attachSolutionImages(data: NewsletterData) {
-  if (!Canvas) return; // fallback to HTML <pre>
   const fontPath = path.join(process.cwd(), 'public', 'fonts', 'Epilogue-Regular.ttf');
   try {
-    if (fs.existsSync(fontPath)) {
+    if (Canvas && fs.existsSync(fontPath)) {
       // Register once; ignore if already registered
       try { Canvas.registerFont(fontPath, { family: 'EpilogueEmail' }); } catch (_) {}
     }
@@ -667,7 +661,11 @@ async function attachSolutionImages(data: NewsletterData) {
       promises.push(
         (async () => {
           try {
-            const base64 = await renderCodeToPng(String(q.solution.code));
+            // Prefer Puppeteer for highest fidelity; fallback to Canvas; then HTML <pre>
+            let base64: string | null = await renderCodeToPngWithPuppeteer(String(q.solution.code));
+            if (!base64 && Canvas) {
+              base64 = await renderCodeToPng(String(q.solution.code));
+            }
             if (base64) {
               q.solution_image_base64 = base64;
             }
@@ -683,6 +681,7 @@ async function renderCodeToPng(code: string): Promise<string | null> {
   if (!Canvas) return null;
   const padding = 32;
   const maxWidth = 1200;
+  const maxHeight = 2200;
   const lineHeight = 28;
   const fontSize = 18;
   const background = '#0b1020';
@@ -690,58 +689,140 @@ async function renderCodeToPng(code: string): Promise<string | null> {
   const textColor = '#e6f0ff';
 
   // Create a measuring context
-  const tmp = Canvas.createCanvas(1, 1);
-  const mctx = tmp.getContext('2d');
-  mctx.font = `${fontSize}px EpilogueEmail, monospace`;
+  const measureCanvas = Canvas.createCanvas(1, 1);
+  const measureCtx = measureCanvas.getContext('2d');
+  measureCtx.font = `${fontSize}px EpilogueEmail, monospace`;
 
-  // Word-wrap code to fit maxWidth - 2*padding
-  const words = code.replace(/\r\n/g, '\n').split(/(\s+)/);
-  const lines: string[] = [];
-  let current = '';
-  const contentWidth = maxWidth - padding * 2;
-  for (const part of words) {
-    const tentative = current + part;
-    const width = mctx.measureText(tentative).width;
-    if (width > contentWidth && current) {
-      lines.push(current);
-      current = part.trimStart();
-    } else {
-      current = tentative;
+  const rawLines = code.replace(/\r\n/g, '\n').split('\n');
+
+  // Helper: wrap an individual line to fit content width, preferring to break on spaces
+  const contentMaxWidth = maxWidth - padding * 2;
+  const wrappedLines: string[] = [];
+  for (const rawLine of rawLines) {
+    let line = rawLine;
+    while (measureCtx.measureText(line).width > contentMaxWidth) {
+      let breakIndex = line.lastIndexOf(' ', Math.floor(line.length * (contentMaxWidth / measureCtx.measureText(line).width)));
+      if (breakIndex <= 0) breakIndex = Math.floor(line.length * (contentMaxWidth / measureCtx.measureText(line).width));
+      wrappedLines.push(line.slice(0, breakIndex));
+      line = line.slice(breakIndex).trimStart();
     }
-    if (part.includes('\n')) {
-      const split = current.split('\n');
-      while (split.length > 1) {
-        const head = split.shift() as string;
-        lines.push(head);
-      }
-      current = split.join('\n');
-    }
+    wrappedLines.push(line);
   }
-  if (current) lines.push(current);
 
-  const height = Math.min(2000, padding * 2 + Math.max(lines.length, 1) * lineHeight + 20);
-  const canvas = Canvas.createCanvas(maxWidth, height);
+  // Compute dynamic canvas width based on longest wrapped line (clamped)
+  const longestWidth = wrappedLines.reduce((w, l) => Math.max(w, measureCtx.measureText(l).width), 0);
+  const canvasWidth = Math.min(maxWidth, Math.ceil(longestWidth + padding * 2));
+  const contentWidth = canvasWidth - padding * 2;
+
+  // Re-wrap if canvasWidth shrunk
+  const finalLines: string[] = [];
+  for (const l of wrappedLines) {
+    let s = l;
+    while (measureCtx.measureText(s).width > contentWidth) {
+      let i = s.lastIndexOf(' ', Math.floor(s.length * (contentWidth / measureCtx.measureText(s).width)));
+      if (i <= 0) i = Math.floor(s.length * (contentWidth / measureCtx.measureText(s).width));
+      finalLines.push(s.slice(0, i));
+      s = s.slice(i).trimStart();
+    }
+    finalLines.push(s);
+  }
+
+  const canvasHeight = Math.min(maxHeight, padding * 2 + Math.max(finalLines.length, 1) * lineHeight + 20);
+  const canvas = Canvas.createCanvas(canvasWidth, canvasHeight);
   const ctx = canvas.getContext('2d');
 
   // Background
   ctx.fillStyle = background;
-  ctx.fillRect(0, 0, maxWidth, height);
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
   // Card
   ctx.fillStyle = card;
-  ctx.fillRect(padding / 2, padding / 2, maxWidth - padding, height - padding);
+  ctx.fillRect(padding / 2, padding / 2, canvasWidth - padding, canvasHeight - padding);
 
   // Text
   ctx.font = `${fontSize}px EpilogueEmail, monospace`;
   ctx.fillStyle = textColor;
   ctx.textBaseline = 'top';
   let y = padding;
-  for (const line of lines) {
+  for (const line of finalLines) {
+    if (y > canvasHeight - padding) break;
     ctx.fillText(line, padding, y);
     y += lineHeight;
-    if (y > height - padding) break; // truncate if too tall
   }
 
   return canvas.toBuffer('image/png').toString('base64');
+}
+
+// High-fidelity renderer using headless Chrome. Works even when Canvas native module is not available.
+async function renderCodeToPngWithPuppeteer(code: string): Promise<string | null> {
+  // Prefer Vercel-friendly stack: puppeteer-core + @sparticuz/chromium
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const chromium = require('@sparticuz/chromium');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const ppc = require('puppeteer-core');
+
+    const executablePath = await chromium.executablePath();
+    const browser = await ppc.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath,
+      headless: chromium.headless,
+    });
+
+    const page = await browser.newPage();
+    const html = `<!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          body { margin: 0; background: #0b1020; }
+          .card { margin: 16px; background: #0f1b3d; border-radius: 12px; padding: 24px; }
+          pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: 16px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; color: #e6f0ff; }
+          code { font: inherit; color: inherit; }
+        </style>
+      </head>
+      <body>
+        <div class="card"><pre><code>${escapeHtml(code)}</code></pre></div>
+      </body>
+      </html>`;
+    await page.setViewport({ width: 1200, height: 10, deviceScaleFactor: 2 });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const card = await page.$('.card');
+    const buffer: Buffer = await card!.screenshot({ type: 'png' });
+    await browser.close();
+    return buffer.toString('base64');
+  } catch (_) {
+    // Fallback to full puppeteer (local dev machines)
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const puppeteer = require('puppeteer');
+      const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      const page = await browser.newPage();
+      const html = `<!doctype html>
+        <html>
+        <head>
+          <meta charset=\"utf-8\" />
+          <style>
+            body { margin: 0; background: #0b1020; }
+            .card { margin: 16px; background: #0f1b3d; border-radius: 12px; padding: 24px; }
+            pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: 16px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; color: #e6f0ff; }
+            code { font: inherit; color: inherit; }
+          </style>
+        </head>
+        <body>
+          <div class=\"card\"><pre><code>${escapeHtml(code)}</code></pre></div>
+        </body>
+        </html>`;
+      await page.setViewport({ width: 1200, height: 10, deviceScaleFactor: 2 });
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+      const card = await page.$('.card');
+      const buffer: Buffer = await card!.screenshot({ type: 'png' });
+      await browser.close();
+      return buffer.toString('base64');
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
